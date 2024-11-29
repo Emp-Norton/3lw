@@ -5,23 +5,34 @@ import tkinter as tk
 
 from constants import WIDGET_WIDTH, WIDGET_HEIGHT
 
-
-
 dotenv.load_dotenv()
+
+class BlockExplorerClient:
+    def __init__(self, *args, **kwargs):
+        self.explorer_name = kwargs['explorer_name']
+        self.url = kwargs['url']
+        self.api_key = kwargs['api_key']
+
+    def get_explorer_name(self):
+        return self._explorer_name
+        
+    def fetch_gas_price_for_network(self):
+       try:
+           response = requests.get(self.url)
+           data = response.json()
+           gas_price = data["result"]["SafeGasPrice"][:5]
+   
+           return f"{gas_price} Gwei"
+       except Exception as e:
+           return f"Error: {e}"
+
+
+
 etherscan_api_key=dotenv.dotenv_values()['ETHERSCAN_API_KEY']
 basescan_api_key=dotenv.dotenv_values()['BASESCAN_API_KEY']
 
-
-def fetch_gas_price_for_network(network: str, key: str, extension: str) -> str:
-    try:
-        url = f"https://api.{network}.{extension}/api?module=gastracker&action=gasoracle&apikey={key}"
-        response = requests.get(url)
-        data = response.json()
-        gas_price = data["result"]["SafeGasPrice"][:5]
-
-        return f"{gas_price} Gwei"
-    except Exception as e:
-        return f"Error: {e}"
+etherscan_client = BlockExplorerClient({'explorer_name': 'etherscan', 'url': , 'api_key': etherscan_api_key})
+basescan_client = BlockExplorerClient({'explorer_name': 'basescan', 'url': , 'api_key': basescan_api_key})
 
 # Function to update gas prices
 def update_prices():
