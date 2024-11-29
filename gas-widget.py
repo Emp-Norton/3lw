@@ -5,35 +5,28 @@ import tkinter as tk
 
 from constants import WIDGET_WIDTH, WIDGET_HEIGHT
 
+
+
 dotenv.load_dotenv()
 etherscan_api_key=dotenv.dotenv_values()['ETHERSCAN_API_KEY']
+basescan_api_key=dotenv.dotenv_values()['BASESCAN_API_KEY']
 
 
-def fetch_ethereum_gas():
+def fetch_gas_price_for_network(network: str, key: str, extension: str) -> str:
     try:
-        url = f"https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey={etherscan_api_key}"
+        url = f"https://api.{network}.{extension}/api?module=gastracker&action=gasoracle&apikey={key}"
         response = requests.get(url)
         data = response.json()
         gas_price = data["result"]["SafeGasPrice"][:5]
-        return f"{gas_price} Gwei"
-    except Exception as e:
-        return f"Error: {e}"
 
-# Function to fetch Base gas price
-def fetch_base_gas():
-    try:
-        url = "https://tokentool.bitbond.com/gas-prices/base"
-        response = requests.get(url)
-        data = response.json()
-        gas_price = data["gasPrice"]
         return f"{gas_price} Gwei"
     except Exception as e:
         return f"Error: {e}"
 
 # Function to update gas prices
 def update_prices():
-    eth_price = fetch_ethereum_gas()
-    base_price = fetch_base_gas()
+    eth_price = fetch_gas_price_for_network('etherscan', etherscan_api_key, )
+    base_price = fetch_gas_price_for_network('basescan', basescan_api_key)
     eth_label.config(text=f"Ethereum Gas Price: {eth_price}")
     base_label.config(text=f"Base Gas Price: {base_price}")
 
