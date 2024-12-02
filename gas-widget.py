@@ -2,8 +2,7 @@ import dotenv
 import requests
 
 import tkinter as tk
-
-from constants import WIDGET_WIDTH, WIDGET_HEIGHT
+from constants import API_BASE_URL, ETHSCAN_NETWORK_ID, BASESCAN_NETWORK_ID, WIDGET_HEIGHT, WIDGET_WIDTH 
 
 dotenv.load_dotenv()
 
@@ -12,6 +11,8 @@ class BlockExplorerClient:
         self.explorer_name = kwargs['explorer_name']
         self.url = kwargs['url']
         self.api_key = kwargs['api_key']
+		self.query_options = '?chainid={chain}&module=gastracker&apikey={api_key}'
+
 
     def get_explorer_name(self):
         return self._explorer_name
