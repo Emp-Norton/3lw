@@ -8,54 +8,40 @@ from constants import (BASE_API_URL,BASESCAN_NETWORK_ID, BASE_QUERY_TEMPLATE,
 
 dotenv.load_dotenv()
 
-class BlockExplorerClient:
-	def __init__(self, explorer_name, url, api_key, query_template):
+class BaseBlockExplorerClient:
+	def __init__(self, explorer_name, url, api_key):
 		self.explorer_name = explorer_name
 		self.url = url.strip('/')
 		self.api_key = api_key
-		# TODO: update the query_template below to handle dynamic module and action setting in the builder function
-		self.query_template = query_template
 	
-	def build_query_url(self, chain_id):
-		"""
-		Constructs the full query URL by filling in parameters. 
-			* Currently this uses different API for base vs eth, but both are capable of handling different network modules and actions, at which point the variables below will become relevant; in the meantime, they will simply be default values and kept for future extensibility:
-				- chain_id = {1: Ethereum Mainnet, 8453: Base Mainnet}
-				- module = {1: 'gastracker', 8453: 'proxy'}
-				- action = {1: 'gasoracle', 8453: 'eth_gasPrice'}
-			* * Further details and full module/action list https://docs.basescan.org/, https://docs.etherscan.io/
-		
-		Args:
-			chain_id (str): The chain ID to include in the query.  
-			module (str): The API endpoint operation set to perform an action on. E.G -> account, transaction, token
-			action (str): The specific action, or relevant data to request from the API endpoint. 
-			
-		Returns:
-			str: The complete URL with query parameters.
-		"""
-		full_query_url = f"{self.url}{self.query_template.format(chain_id, self.api_key)}"
+	def build_query_url(self, **params):
+		raise NotImplementedError("Subclasses handle query-builder logic due to variable API structures.")
 
-		return full_query_url
-
+	def extract_response_data(self, data):
+		raise NotImplementedError("Subclasses handle response data extraction due to keyword differences in responses.")
 
 	def get_explorer_name(self):
 		return self._explorer_name
 		
-	def fetch_gas_price_for_network(self, url):
+	def fetch_gas_price_for_network(self):
+		"""
+		Description: 
+			Retrieves the gas price in Gwei for the network specified by the subclassed BlockExplorerClient.
+		
+		Args:
+			None
+		
+		Returns:
+			str: The network-specific current gas price. 
+		"""
 		try:
-			fetch_url = url
-			print(fetch_url)
+			fetch_url = self.build_query_url()
 			response = requests.get(fetch_url)
-			pdb.set_trace()
 			data = response.json()
-			gas_price = data["result"]["SafeGasPrice"]
-			
+			gas_price = self.extract_response_data(data)
 			return f"{gas_price} Gwei"
-			
 		except Exception as e:
-			pdb.set_trace()
 			return f"Fetch Gas Price Error: {e}"
-
 
 
 etherscan_api_key=dotenv.dotenv_values()['ETHERSCAN_API_KEY']
