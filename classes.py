@@ -1,5 +1,6 @@
 import requests 
-from constants import ETHSCAN_NETWORK_ID
+
+from constants import ETHSCAN_NETWORK_ID, GAS_TRUNC_VAL
 
 class BaseBlockExplorerClient:
     def __init__(self, explorer_name, url, api_key):
@@ -58,8 +59,8 @@ class EtherscanClient(BaseBlockExplorerClient):
     def extract_response_data(self, data):
         safe_gas_price_keyword = 'SafeGasPrice'
         fast_gas_price_keyword = 'FastGasPrice'
-        safe = data['result'][safe_gas_price_keyword]
-        fast = data['result'][fast_gas_price_keyword]
+        safe = data['result'][safe_gas_price_keyword][:GAS_TRUNC_VAL]
+        fast = data['result'][fast_gas_price_keyword][:GAS_TRUNC_VAL]
 
         return f"Safe: {safe} Gwei \nFast: {fast} Gwei\n"
        
@@ -102,4 +103,4 @@ class BasescanClient(BaseBlockExplorerClient):
         converted_hex = int(data['result'], 16) 
         price = wei_to_gwei(converted_hex)
 
-        return f"{str(price)[:5]} Gwei\n"
+        return f"{str(price)[:GAS_TRUNC_VAL]} Gwei\n"
